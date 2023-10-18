@@ -133,7 +133,7 @@ no_radiobutton_4.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-storage_label = tk.Label(frame, text="Speicherort:")
+storage_label = tk.Label(frame, text="Speicherort: (Textdatei wählen)")
 storage_label.pack()
 
 # Pfad-Explorer-Widget
@@ -142,7 +142,7 @@ storage_path.pack()
 
 # Schaltfläche "Durchsuchen" zum Auswählen eines Speicherorts
 def browse_storage():
-    folder_path = filedialog.askdirectory()
+    folder_path = filedialog.askopenfilename()
     if folder_path:
         storage_path.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
         storage_path.insert(0, folder_path)  # Setzen des ausgewählten Pfads
@@ -180,6 +180,8 @@ def run_the_magic():
     print("\n" + text)
 
     text_file = open(storage_path.get(), 'w')
+    text_file.write(text)
+    text_file.close()
 
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
