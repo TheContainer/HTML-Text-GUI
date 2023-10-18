@@ -2,14 +2,32 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter.simpledialog import askstring
 from tkinter import filedialog
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+import re
+import ssl
+import requests
+
+def remove_triggerword_lines(text, woerterliste):
+    # Teile den Text in Zeilen auf
+    zeilen = text.split('\n')
+    
+    # Verwende eine Liste, um die Zeilen zu speichern, die nicht die bestimmten Wörter enthalten
+    bereinigte_zeilen = [zeile for zeile in zeilen if not any(wo in zeile for wo in woerterliste)]
+    
+    # Füge die bereinigten Zeilen wieder zu einem Text zusammen
+    bereinigter_text = '\n'.join(bereinigte_zeilen)
+    
+    return bereinigter_text
+
+ssl_context = ssl.create_default_context()
+ssl_context.options |= 0x4
 
 # Erstellen des Hauptfensters
 root = tk.Tk()
 root.title("HTML zu Text GUI")
 
-trigger_words = ["Terms", "Policy", "Donate", "Store", "License"]
-
-
+trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail"]
 
 # Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
@@ -28,7 +46,7 @@ frame.pack(expand=True)
 url_label = tk.Label(frame, text="URL")
 url_label.pack()
 
-url_entry = tk.Entry(frame)
+url_entry = tk.Entry(frame, width=60)
 url_entry.pack(pady=10)  # Etwas Abstand nach unten hinzufügen
 
 # Erste Frage Label (bleibt erhalten)
@@ -136,8 +154,32 @@ space_frame = tk.Frame(frame, height=20)
 space_frame.pack()
 
 def run_the_magic():
+    url = url_entry.get()
+    
     trigger_words = listbox.get(0, tk.END)
-    print(trigger_words)
+    print(str(trigger_words) + "\n" + url + "\n" + str(answer.get()) + "\n" + str(answer_2.get()) + "\n" + str(answer_3.get()))
+
+    html = urlopen(url, context=ssl_context)
+
+    soup = BeautifulSoup(html, features="html.parser")
+
+    for script in soup(["script", "style"]):
+        script.extract()
+
+    text = soup.get_text()
+
+    if answer.get() == 1:
+        text = re.sub(r'^\s*\w+\s*$', '', text, flags=re.MULTILINE)
+    if answer_2.get() == 1:
+        text = re.sub(r'^(?=.*[^\u0000-\u007F]).*$', '', text, flags=re.MULTILINE)
+    if answer_3.get() == 1:
+        text = remove_triggerword_lines(text, trigger_words)
+    if answer_4.get() == 1:
+        text = re.sub(r'\n\s*\n', '\n', text)
+
+    print("\n" + text)
+
+    text_file = open(storage_path.get(), 'w')
 
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
