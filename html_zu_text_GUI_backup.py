@@ -1,0 +1,139 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter.simpledialog import askstring
+from tkinter import filedialog
+
+# Erstellen des Hauptfensters
+root = tk.Tk()
+root.title("HTML zu Text GUI")
+
+trigger_words = ["Terms", "Policy", "Donate", "Store", "License"]
+
+# Das Hauptfenster zentrieren und eine feste Größe festlegen
+window_width = 600
+window_height = 800  # Erhöht, um Platz für die zusätzlichen Fragen zu schaffen
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x = (screen_width - window_width) // 2
+y = (screen_height - window_height) // 2
+root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+# Frame zur Zentrierung der Inhalte
+frame = tk.Frame(root)
+frame.pack(expand=True)
+
+# URL Label und Eingabefeld
+url_label = tk.Label(frame, text="URL")
+url_label.pack()
+
+url_entry = tk.Entry(frame)
+url_entry.pack(pady=10)  # Etwas Abstand nach unten hinzufügen
+
+# Erste Frage Label (bleibt erhalten)
+question_label = tk.Label(frame, text="Zeilen mit nur einem Wort entfernen?")
+question_label.pack()
+
+# Radiobuttons für die erste Frage (bleiben erhalten)
+answer = tk.IntVar()
+yes_radiobutton = tk.Radiobutton(frame, text="Ja", variable=answer, value=1)
+yes_radiobutton.pack()
+
+no_radiobutton = tk.Radiobutton(frame, text="Nein", variable=answer, value=2)
+no_radiobutton.pack()
+
+space_frame = tk.Frame(frame, height=10)
+space_frame.pack()
+
+# Zweite Frage Label
+question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (nicht empfohlen)")
+question_label_2.pack()
+
+# Radiobuttons für die zweite Frage
+answer_2 = tk.IntVar()
+yes_radiobutton_2 = tk.Radiobutton(frame, text="Ja", variable=answer_2, value=1)
+yes_radiobutton_2.pack()
+
+no_radiobutton_2 = tk.Radiobutton(frame, text="Nein", variable=answer_2, value=2)
+no_radiobutton_2.pack()
+
+space_frame = tk.Frame(frame, height=10)
+space_frame.pack()
+
+# Dritte Frage Label
+question_label_3 = tk.Label(frame, text="Triggerwortliste benutzen? (Alle Zeilen, die Wörter aus der Liste enthalten, werden entfernt)")
+question_label_3.pack()
+
+# Radiobuttons für die dritte Frage
+answer_3 = tk.IntVar()
+yes_radiobutton_3 = tk.Radiobutton(frame, text="Ja", variable=answer_3, value=1)
+yes_radiobutton_3.pack()
+
+no_radiobutton_3 = tk.Radiobutton(frame, text="Nein", variable=answer_3, value=2)
+no_radiobutton_3.pack()
+
+# Liste für Triggerwörter
+listbox = tk.Listbox(frame, selectmode=tk.SINGLE)
+for word in trigger_words:
+    listbox.insert(tk.END, word)
+listbox.pack()
+
+# Schaltflächen zum Hinzufügen und Entfernen von Triggerwörtern
+def add_word():
+    word = askstring("Hinzufügen", "Geben Sie das Triggerwort ein:")
+    if word:
+        listbox.insert(tk.END, word)
+
+def remove_word():
+    selected_index = listbox.curselection()
+    if selected_index:
+        listbox.delete(selected_index)
+
+add_button = tk.Button(frame, text="Hinzufügen", command=add_word)
+remove_button = tk.Button(frame, text="Entfernen", command=remove_word)
+add_button.pack()
+remove_button.pack()
+
+space_frame = tk.Frame(frame, height=10)
+space_frame.pack()
+
+# Vierte Frage Label
+question_label_4 = tk.Label(frame, text="Alle leere Zeilen entfernen? (Es sind mehr leere Zeilen als \nauf der ursprünglichen Seite, da alle entfernten Zeilen leere Zeilen sind.)")
+question_label_4.pack()
+
+# Radiobuttons für die vierte Frage
+answer_4 = tk.IntVar()
+yes_radiobutton_4 = tk.Radiobutton(frame, text="Ja", variable=answer_4, value=1)
+yes_radiobutton_4.pack()
+
+no_radiobutton_4 = tk.Radiobutton(frame, text="Nein", variable=answer_4, value=2)
+no_radiobutton_4.pack()
+
+space_frame = tk.Frame(frame, height=10)
+space_frame.pack()
+
+storage_label = tk.Label(frame, text="Speicherort:")
+storage_label.pack()
+
+# Pfad-Explorer-Widget
+storage_path = tk.Entry(frame, width=60)
+storage_path.pack()
+
+# Schaltfläche "Durchsuchen" zum Auswählen eines Speicherorts
+def browse_storage():
+    folder_path = filedialog.askdirectory()
+    if folder_path:
+        storage_path.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
+        storage_path.insert(0, folder_path)  # Setzen des ausgewählten Pfads
+
+browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage)
+browse_button.pack()
+
+space_frame = tk.Frame(frame, height=20)
+space_frame.pack()
+
+# Bestätigungsbutton
+confirm_button = tk.Button(frame, text="Bestätigen")
+confirm_button.pack()
+
+# Tkinter Hauptloop starten
+root.mainloop()
