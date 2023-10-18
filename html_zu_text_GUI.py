@@ -27,7 +27,7 @@ ssl_context.options |= 0x4
 root = tk.Tk()
 root.title("HTML zu Text GUI")
 
-trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail"]
+trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail", "Cookies", "Login", "Register"]
 
 # Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
@@ -47,13 +47,14 @@ url_label = tk.Label(frame, text="URL")
 url_label.pack()
 
 url_entry = tk.Entry(frame, width=60)
-url_entry.pack(pady=10)  # Etwas Abstand nach unten hinzufügen
+url_entry.pack()
 
-# Erste Frage Label (bleibt erhalten)
+space_frame = tk.Frame(frame, height=10)
+space_frame.pack()
+
 question_label = tk.Label(frame, text="Zeilen mit nur einem Wort entfernen?")
 question_label.pack()
 
-# Radiobuttons für die erste Frage (bleiben erhalten)
 answer = tk.IntVar()
 yes_radiobutton = tk.Radiobutton(frame, text="Ja", variable=answer, value=1)
 yes_radiobutton.pack()
@@ -64,12 +65,11 @@ no_radiobutton.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-# Zweite Frage Label
 question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (nicht empfohlen)")
 question_label_2.pack()
 
-# Radiobuttons für die zweite Frage
 answer_2 = tk.IntVar()
+answer_2.set(2)  # Voreinstellung auf 2 setzen
 yes_radiobutton_2 = tk.Radiobutton(frame, text="Ja", variable=answer_2, value=1)
 yes_radiobutton_2.pack()
 
@@ -79,11 +79,9 @@ no_radiobutton_2.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-# Dritte Frage Label
 question_label_3 = tk.Label(frame, text="Triggerwortliste benutzen? (Alle Zeilen, die Wörter aus der Liste enthalten, werden entfernt)")
 question_label_3.pack()
 
-# Radiobuttons für die dritte Frage
 answer_3 = tk.IntVar()
 yes_radiobutton_3 = tk.Radiobutton(frame, text="Ja", variable=answer_3, value=1)
 yes_radiobutton_3.pack()
@@ -118,11 +116,9 @@ remove_button.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-# Vierte Frage Label
 question_label_4 = tk.Label(frame, text="Alle leere Zeilen entfernen? (Es sind mehr leere Zeilen als \nauf der ursprünglichen Seite, da alle entfernten Zeilen leere Zeilen sind.)")
 question_label_4.pack()
 
-# Radiobuttons für die vierte Frage
 answer_4 = tk.IntVar()
 yes_radiobutton_4 = tk.Radiobutton(frame, text="Ja", variable=answer_4, value=1)
 yes_radiobutton_4.pack()
@@ -157,7 +153,6 @@ def run_the_magic():
     url = url_entry.get()
     
     trigger_words = listbox.get(0, tk.END)
-    print(str(trigger_words) + "\n" + url + "\n" + str(answer.get()) + "\n" + str(answer_2.get()) + "\n" + str(answer_3.get()))
 
     html = urlopen(url, context=ssl_context)
 
@@ -179,9 +174,10 @@ def run_the_magic():
 
     print("\n" + text)
 
-    text_file = open(storage_path.get(), 'w')
-    text_file.write(text)
-    text_file.close()
+    if storage_path.get() != '':
+        text_file = open(storage_path.get(), 'w')
+        text_file.write(text)
+        text_file.close()
 
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
