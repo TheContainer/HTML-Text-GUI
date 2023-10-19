@@ -45,6 +45,12 @@ root.resizable(0,0)
 frame = tk.Frame(root)
 frame.pack(expand=True)
 
+warning_label = tk.Label(frame, text="Warnung: einzelne Webseiten funktionieren nicht.")
+warning_label.pack()
+
+space_frame = tk.Frame(frame, height=30)
+space_frame.pack()
+
 # URL Label und Eingabefeld
 url_label = tk.Label(frame, text="URL eingeben oder Textdatei auswählen")
 url_label.pack()
@@ -77,11 +83,11 @@ no_radiobutton.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (nicht empfohlen)")
+question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (empfohlen bei Textabspeicherung)")
 question_label_2.pack()
 
 answer_2 = tk.IntVar()
-answer_2.set(2)  # Voreinstellung auf 2 setzen
+answer_2.set(1)  # Voreinstellung auf 1 setzen
 yes_radiobutton_2 = tk.Radiobutton(frame, text="Ja", variable=answer_2, value=1)
 yes_radiobutton_2.pack()
 
@@ -141,7 +147,7 @@ no_radiobutton_4.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-storage_label = tk.Label(frame, text="Speicherort: (Textdatei wählen)")
+storage_label = tk.Label(frame, text="Speicherort: (Ordner wählen, Textdatei wird automatisch erstellt)")
 storage_label.pack()
 
 # Pfad-Explorer-Widget
@@ -150,7 +156,7 @@ storage_path.pack()
 
 # Schaltfläche "Durchsuchen" zum Auswählen eines Speicherorts
 def browse_storage_save():
-    folder_path = filedialog.askopenfilename()
+    folder_path = filedialog.askdirectory()
     if folder_path:
         storage_path.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
         storage_path.insert(0, folder_path)  # Setzen des ausgewählten Pfads
@@ -161,7 +167,7 @@ browse_button.pack()
 space_frame = tk.Frame(frame, height=20)
 space_frame.pack()
 
-def process(url):
+def process(url, transaction_type):
     trigger_words = listbox.get(0, tk.END)
 
     html = urlopen(url, context=ssl_context)
@@ -185,9 +191,35 @@ def process(url):
     print("\n" + text)
 
     if storage_path.get() != '':
-        text_file = open(storage_path.get(), 'w')
-        text_file.write(text)
-        text_file.close()
+        if transaction_type == "direct":
+            name = url_entry.get()
+            name = re.sub(r'https?://', '', name)
+            last_dot_index = name.rfind(".")
+
+            cleared_name=""
+        
+            if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
+                cleared_name = name[:last_dot_index]
+            
+            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w')
+            text_file.write(text)
+            text_file.close()
+            
+        elif transaction_type == "file":
+            name = url
+            name = re.sub(r'https?://', '', name)
+            last_dot_index = name.rfind(".")
+
+            cleared_name=""
+        
+            if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
+                cleared_name = name[:last_dot_index]
+            
+            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w')
+            text_file.write(text)
+            text_file.close()
+
+
 
 
 def run_the_magic():
@@ -207,13 +239,13 @@ def run_the_magic():
 
         for current_line in range(0, line_count):
             url = text_lines[current_line]
-            process(url)
+            process(url, "file")
         
     elif (validators.url(url_entry.get())):
     
         url = url_entry.get()
     
-        process(url)
+        process(url, "direct")
         
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
