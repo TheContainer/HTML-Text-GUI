@@ -6,6 +6,8 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
 import ssl
+import os
+import validators
 import requests
 
 def remove_triggerword_lines(text, woerterliste):
@@ -27,7 +29,7 @@ ssl_context.options |= 0x4
 root = tk.Tk()
 root.title("HTML zu Text GUI")
 
-trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail", "Cookies", "Login", "Register"]
+trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail", "Cookies", "Login", "Register", "Powered by"]
 
 # Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
@@ -37,17 +39,27 @@ screen_height = root.winfo_screenheight()
 x = (screen_width - window_width) // 2
 y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+root.resizable(0,0)
 
 # Frame zur Zentrierung der Inhalte
 frame = tk.Frame(root)
 frame.pack(expand=True)
 
 # URL Label und Eingabefeld
-url_label = tk.Label(frame, text="URL")
+url_label = tk.Label(frame, text="URL eingeben oder Textdatei auswählen")
 url_label.pack()
 
 url_entry = tk.Entry(frame, width=60)
 url_entry.pack()
+
+def browse_storage_load():
+    folder_path = filedialog.askopenfilename()
+    if folder_path:
+        url_entry.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
+        url_entry.insert(0, folder_path)  # Setzen des ausgewählten Pfads
+
+browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage_load)
+browse_button.pack()
 
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
@@ -137,21 +149,19 @@ storage_path = tk.Entry(frame, width=60)
 storage_path.pack()
 
 # Schaltfläche "Durchsuchen" zum Auswählen eines Speicherorts
-def browse_storage():
+def browse_storage_save():
     folder_path = filedialog.askopenfilename()
     if folder_path:
         storage_path.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
         storage_path.insert(0, folder_path)  # Setzen des ausgewählten Pfads
 
-browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage)
+browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage_save)
 browse_button.pack()
 
 space_frame = tk.Frame(frame, height=20)
 space_frame.pack()
 
-def run_the_magic():
-    url = url_entry.get()
-    
+def process(url):
     trigger_words = listbox.get(0, tk.END)
 
     html = urlopen(url, context=ssl_context)
@@ -179,6 +189,32 @@ def run_the_magic():
         text_file.write(text)
         text_file.close()
 
+
+def run_the_magic():
+    if (os.path.isfile(url_entry.get())):
+        load_path = url_entry.get()
+
+        file = open(load_path)
+        text_lines = file.readlines()
+
+        line_count = 0
+
+        text = ""
+
+        with open(load_path) as f:
+            count = sum(1 for _ in f)
+            line_count = count
+
+        for current_line in range(0, line_count):
+            url = text_lines[current_line]
+            process(url)
+        
+    elif (validators.url(url_entry.get())):
+    
+        url = url_entry.get()
+    
+        process(url)
+        
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
 confirm_button.pack()
