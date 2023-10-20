@@ -9,6 +9,8 @@ import ssl
 import os
 import validators
 import requests
+import json
+import codecs
 
 def remove_triggerword_lines(text, woerterliste):
     # Teile den Text in Zeilen auf
@@ -33,7 +35,7 @@ trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail", "Coo
 
 # Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
-window_height = 800  # Erhöht, um Platz für die zusätzlichen Fragen zu schaffen
+window_height = 900  # Erhöht, um Platz für die zusätzlichen Fragen zu schaffen
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x = (screen_width - window_width) // 2
@@ -83,7 +85,7 @@ no_radiobutton.pack()
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
-question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (empfohlen bei Textabspeicherung)")
+question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen entfernen? (nicht empfohlen)")
 question_label_2.pack()
 
 answer_2 = tk.IntVar()
@@ -167,6 +169,31 @@ browse_button.pack()
 space_frame = tk.Frame(frame, height=20)
 space_frame.pack()
 
+def load_config():
+    try:
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+            answer.set(config['answer_1'])
+            answer_2.set(config['answer_2'])
+            answer_3.set(config['answer_3'])
+            answer_4.set(config['answer_4'])
+            trigger_words = config['trigger_words']
+            for word in trigger_words:
+                listbox.insert(tk.END, word)
+    except FileNotFoundError:
+        pass
+
+def save_config():
+    config = {
+        'answer_1': answer.get(),
+        'answer_2': answer_2.get(),
+        'answer_3': answer_3.get(),
+        'answer_4': answer_4.get(),
+        'trigger_words': listbox.get(0, tk.END)
+    }
+    with open('config.json', 'w') as config_file:
+        json.dump(config, config_file)
+
 def process(url, transaction_type):
     trigger_words = listbox.get(0, tk.END)
 
@@ -201,8 +228,9 @@ def process(url, transaction_type):
             if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
                 cleared_name = name[:last_dot_index]
             
-            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w')
-            text_file.write(text)
+            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w', encoding='utf-8')
+
+            text_file.write(text.enode("utf-8"))
             text_file.close()
             
         elif transaction_type == "file":
@@ -215,10 +243,9 @@ def process(url, transaction_type):
             if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
                 cleared_name = name[:last_dot_index]
             
-            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w')
+            text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w', encoding='utf-8')
             text_file.write(text)
             text_file.close()
-
 
 
 
@@ -246,10 +273,14 @@ def run_the_magic():
         url = url_entry.get()
     
         process(url, "direct")
-        
+
+load_config()
 # Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
 confirm_button.pack()
+
+save_button = tk.Button(frame, text="Konfiguration speichern", command=save_config)
+save_button.pack()
 
 # Tkinter Hauptloop starten
 root.mainloop()
