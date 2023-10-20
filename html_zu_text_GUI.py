@@ -76,6 +76,7 @@ question_label = tk.Label(frame, text="Zeilen mit nur einem Wort entfernen?")
 question_label.pack()
 
 answer = tk.IntVar()
+answer.set(1)
 yes_radiobutton = tk.Radiobutton(frame, text="Ja", variable=answer, value=1)
 yes_radiobutton.pack()
 
@@ -89,7 +90,7 @@ question_label_2 = tk.Label(frame, text="Zeilen mit nicht-lateinischen Zeichen e
 question_label_2.pack()
 
 answer_2 = tk.IntVar()
-answer_2.set(1)  # Voreinstellung auf 1 setzen
+answer_2.set(1)
 yes_radiobutton_2 = tk.Radiobutton(frame, text="Ja", variable=answer_2, value=1)
 yes_radiobutton_2.pack()
 
@@ -103,6 +104,7 @@ question_label_3 = tk.Label(frame, text="Triggerwortliste benutzen? (Alle Zeilen
 question_label_3.pack()
 
 answer_3 = tk.IntVar()
+answer_3.set(1)
 yes_radiobutton_3 = tk.Radiobutton(frame, text="Ja", variable=answer_3, value=1)
 yes_radiobutton_3.pack()
 
@@ -140,6 +142,7 @@ question_label_4 = tk.Label(frame, text="Alle leere Zeilen entfernen? (Es sind m
 question_label_4.pack()
 
 answer_4 = tk.IntVar()
+answer_4.set(1)
 yes_radiobutton_4 = tk.Radiobutton(frame, text="Ja", variable=answer_4, value=1)
 yes_radiobutton_4.pack()
 
