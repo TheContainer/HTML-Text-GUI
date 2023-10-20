@@ -12,6 +12,10 @@ import requests
 import json
 import codecs
 
+def remove_lists(soup):
+    for ul in soup.find_all('ul'):
+        ul.extract()
+
 def remove_triggerword_lines(text, woerterliste):
     # Teile den Text in Zeilen auf
     zeilen = text.split('\n')
@@ -149,6 +153,17 @@ yes_radiobutton_4.pack()
 no_radiobutton_4 = tk.Radiobutton(frame, text="Nein", variable=answer_4, value=2)
 no_radiobutton_4.pack()
 
+question_label_5 = tk.Label(frame, text="Alle Listen entfernen?")
+question_label_5.pack()
+
+answer_5 = tk.IntVar()
+answer_5.set(1)
+yes_radiobutton_5 = tk.Radiobutton(frame, text="Ja", variable=answer_5, value=1)
+yes_radiobutton_5.pack()
+
+no_radiobutton_5 = tk.Radiobutton(frame, text="Nein", variable=answer_5, value=2)
+no_radiobutton_5.pack()
+
 space_frame = tk.Frame(frame, height=10)
 space_frame.pack()
 
@@ -180,6 +195,7 @@ def load_config():
             answer_2.set(config['answer_2'])
             answer_3.set(config['answer_3'])
             answer_4.set(config['answer_4'])
+            answer_5.set(config['answer_5'])
             trigger_words = config['trigger_words']
             for word in trigger_words:
                 listbox.insert(tk.END, word)
@@ -192,6 +208,7 @@ def save_config():
         'answer_2': answer_2.get(),
         'answer_3': answer_3.get(),
         'answer_4': answer_4.get(),
+        'answer_5': answer_5.get(),
         'trigger_words': listbox.get(0, tk.END)
     }
     with open('config.json', 'w') as config_file:
@@ -206,6 +223,9 @@ def process(url, transaction_type):
 
     for script in soup(["script", "style"]):
         script.extract()
+
+    if answer_5.get() == 1:
+        remove_lists(soup)
 
     text = soup.get_text()
 
@@ -233,7 +253,7 @@ def process(url, transaction_type):
             
             text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w', encoding='utf-8')
 
-            text_file.write(text.enode("utf-8"))
+            text_file.write(text)
             text_file.close()
             
         elif transaction_type == "file":
