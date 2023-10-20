@@ -238,6 +238,8 @@ def process(url, transaction_type):
     if answer_4.get() == 1:
         text = re.sub(r'\n\s*\n', '\n', text)
 
+    text = '\n'.join(line.strip() for line in text.split('\n'))
+
     print("\n" + text)
 
     if storage_path.get() != '':
