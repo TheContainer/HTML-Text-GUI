@@ -31,7 +31,7 @@ ssl_context.options |= 0x4
 root = tk.Tk()
 root.title("HTML zu Text GUI")
 
-trigger_words = ["Terms", "Policy", "Donate", "Store", "License", "E-Mail", "Cookies", "Login", "Register", "Powered by"]
+trigger_words = []
 
 # Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
