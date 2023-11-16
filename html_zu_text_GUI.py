@@ -17,13 +17,10 @@ def remove_lists(soup):
         ul.extract()
 
 def remove_triggerword_lines(text, woerterliste):
-    # Teile den Text in Zeilen auf
     zeilen = text.split('\n')
     
-    # Verwende eine Liste, um die Zeilen zu speichern, die nicht die bestimmten Wörter enthalten
     bereinigte_zeilen = [zeile for zeile in zeilen if not any(wo in zeile for wo in woerterliste)]
     
-    # Füge die bereinigten Zeilen wieder zu einem Text zusammen
     bereinigter_text = '\n'.join(bereinigte_zeilen)
     
     return bereinigter_text
@@ -31,15 +28,13 @@ def remove_triggerword_lines(text, woerterliste):
 ssl_context = ssl.create_default_context()
 ssl_context.options |= 0x4
 
-# Erstellen des Hauptfensters
 root = tk.Tk()
 root.title("HTML zu Text GUI")
 
 trigger_words = []
 
-# Das Hauptfenster zentrieren und eine feste Größe festlegen
 window_width = 600
-window_height = 900  # Erhöht, um Platz für die zusätzlichen Fragen zu schaffen
+window_height = 900
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x = (screen_width - window_width) // 2
@@ -47,7 +42,6 @@ y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 root.resizable(0,0)
 
-# Frame zur Zentrierung der Inhalte
 frame = tk.Frame(root)
 frame.pack(expand=True)
 
@@ -57,7 +51,6 @@ warning_label.pack()
 space_frame = tk.Frame(frame, height=30)
 space_frame.pack()
 
-# URL Label und Eingabefeld
 url_label = tk.Label(frame, text="URL eingeben oder Textdatei auswählen")
 url_label.pack()
 
@@ -67,8 +60,8 @@ url_entry.pack()
 def browse_storage_load():
     folder_path = filedialog.askopenfilename()
     if folder_path:
-        url_entry.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
-        url_entry.insert(0, folder_path)  # Setzen des ausgewählten Pfads
+        url_entry.delete(0, tk.END)
+        url_entry.insert(0, folder_path)
 
 browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage_load)
 browse_button.pack()
@@ -115,13 +108,11 @@ yes_radiobutton_3.pack()
 no_radiobutton_3 = tk.Radiobutton(frame, text="Nein", variable=answer_3, value=2)
 no_radiobutton_3.pack()
 
-# Liste für Triggerwörter
 listbox = tk.Listbox(frame, selectmode=tk.SINGLE)
 for word in trigger_words:
     listbox.insert(tk.END, word)
 listbox.pack()
 
-# Schaltflächen zum Hinzufügen und Entfernen von Triggerwörtern
 def add_word():
     word = askstring("Hinzufügen", "Geben Sie das Triggerwort ein:")
     if word:
@@ -170,16 +161,14 @@ space_frame.pack()
 storage_label = tk.Label(frame, text="Speicherort: (Ordner wählen, Textdatei wird automatisch erstellt)")
 storage_label.pack()
 
-# Pfad-Explorer-Widget
 storage_path = tk.Entry(frame, width=60)
 storage_path.pack()
 
-# Schaltfläche "Durchsuchen" zum Auswählen eines Speicherorts
 def browse_storage_save():
     folder_path = filedialog.askdirectory()
     if folder_path:
-        storage_path.delete(0, tk.END)  # Löschen des aktuellen Inhalts des Textfelds
-        storage_path.insert(0, folder_path)  # Setzen des ausgewählten Pfads
+        storage_path.delete(0, tk.END)
+        storage_path.insert(0, folder_path)
 
 browse_button = tk.Button(frame, text="Durchsuchen", command=browse_storage_save)
 browse_button.pack()
@@ -250,7 +239,7 @@ def process(url, transaction_type):
 
             cleared_name=""
         
-            if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
+            if last_dot_index != -1:
                 cleared_name = name[:last_dot_index]
             
             text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w', encoding='utf-8')
@@ -265,7 +254,7 @@ def process(url, transaction_type):
 
             cleared_name=""
         
-            if last_dot_index != -1:  # Überprüfe, ob ein Punkt im String gefunden wurde
+            if last_dot_index != -1:
                 cleared_name = name[:last_dot_index]
             
             text_file = open(storage_path.get() + "/" + cleared_name + ".txt", 'w', encoding='utf-8')
@@ -300,12 +289,10 @@ def run_the_magic():
         process(url, "direct")
 
 load_config()
-# Bestätigungsbutton
 confirm_button = tk.Button(frame, text="Bestätigen", command=run_the_magic)
 confirm_button.pack()
 
 save_button = tk.Button(frame, text="Konfiguration speichern", command=save_config)
 save_button.pack()
 
-# Tkinter Hauptloop starten
 root.mainloop()
